@@ -306,20 +306,13 @@
     scrollbar-color: var(--paper-deep) transparent;
   }
 
-  .messages-inner {
-    max-width: 760px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 0 32px;
-  }
-
   .messages::-webkit-scrollbar { width: 4px; }
   .messages::-webkit-scrollbar-thumb { background: var(--paper-deep); border-radius: 2px; }
 
   .message-row {
     max-width: 760px;
     margin: 0 auto 28px;
-    padding: 0;
+    padding: 0 32px;
     animation: fadeUp 0.35s ease forwards;
     opacity: 0;
   }
@@ -384,16 +377,15 @@
     bottom: 5px; right: 5px;
   }
 
-  /* Welcome screen — hidden when chatting */
+  /* Welcome screen */
   .welcome {
-    display: none;
-  }
-  .chat-area.empty-state .welcome {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     text-align: center;
-    padding: 0 32px 32px;
+    padding: 40px 32px;
+    flex: 1;
   }
 
   .welcome-icon {
@@ -468,7 +460,7 @@
     border-color: var(--ink);
   }
 
-  /* Input area — sits at bottom normally */
+  /* Input area */
   .input-area {
     padding: 12px 32px 28px;
     background: var(--paper);
@@ -476,31 +468,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
-
-  /* Empty state: messages area becomes a centered flex container */
-  .chat-area.empty-state .messages {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-  /* Empty state: input moves inside the centered messages area */
-  .chat-area.empty-state .input-area {
-    display: none;
-  }
-  /* The center-block holds welcome + input when empty */
-  .center-block {
-    display: none;
-  }
-  .chat-area.empty-state .center-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 680px;
-    padding: 0 0 8px;
   }
 
   .input-wrap {
@@ -570,13 +537,7 @@
     font-weight: 300;
   }
 
-  .center-input-wrap {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0;
-  }
+
 
   /* Typing indicator */
   .typing-indicator {
@@ -955,7 +916,7 @@
   </aside>
 
   <!-- Chat -->
-  <main class="chat-area empty-state" id="chat-area">
+  <main class="chat-area" id="chat-area">
     <div class="chat-topbar">
       <span class="chat-title">对话 · <span id="chat-id">—</span></span>
       <div style="display:flex;gap:8px;align-items:center">
@@ -978,46 +939,29 @@
     </div>
 
     <div class="messages" id="messages">
-      <div class="messages-inner" id="messages-inner"></div>
-
-      <!-- Center block: shown only in empty state, hidden when chatting -->
-      <div class="center-block" id="center-block">
-        <div class="welcome" id="welcome-screen">
-          <div class="welcome-icon"></div>
-          <h1>你好，我是 Nova</h1>
-          <p>基于 AI 驱动的智能助手<br>有什么我可以帮你的？</p>
-          <div class="suggestions">
-            <div class="suggestion-chip" onclick="suggest('用中文介绍一下人工智能的历史')">🧠 AI 的历史</div>
-            <div class="suggestion-chip" onclick="suggest('帮我写一首关于秋天的诗')">🍂 写一首诗</div>
-            <div class="suggestion-chip" onclick="suggest('用 Python 写一个排序算法')">💻 写代码</div>
-            <div class="suggestion-chip" onclick="suggest('推荐几部好看的科幻电影')">🎬 电影推荐</div>
-          </div>
-        </div>
-        <div class="center-input-wrap">
-          <div class="input-wrap">
-            <textarea id="user-input" rows="1" placeholder="输入消息，Shift+Enter 换行，Enter 发送…" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-            <button class="send-btn" id="send-btn" onclick="sendMessage()" title="发送">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </div>
-          <div class="input-hint">Nova AI · <span id="input-hint-model">请先在"模型设置"中添加配置</span> · 数据仅在本地处理</div>
+      <div id="welcome-screen" class="welcome">
+        <div class="welcome-icon"></div>
+        <h1>你好，我是 Nova</h1>
+        <p>基于 AI 驱动的智能助手<br>有什么我可以帮你的？</p>
+        <div class="suggestions">
+          <div class="suggestion-chip" onclick="suggest('用中文介绍一下人工智能的历史')">🧠 AI 的历史</div>
+          <div class="suggestion-chip" onclick="suggest('帮我写一首关于秋天的诗')">🍂 写一首诗</div>
+          <div class="suggestion-chip" onclick="suggest('用 Python 写一个排序算法')">💻 写代码</div>
+          <div class="suggestion-chip" onclick="suggest('推荐几部好看的科幻电影')">🎬 电影推荐</div>
         </div>
       </div>
     </div>
 
-    <!-- Bottom input: shown only when chatting -->
-    <div class="input-area" id="input-area-bottom" style="display:none">
+    <div class="input-area">
       <div class="input-wrap">
-        <textarea id="user-input-bottom" rows="1" placeholder="输入消息，Shift+Enter 换行，Enter 发送…" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-        <button class="send-btn" id="send-btn-bottom" onclick="sendMessage()" title="发送">
+        <textarea id="user-input" rows="1" placeholder="输入消息，Shift+Enter 换行，Enter 发送…" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()" title="发送">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
       </div>
-      <div class="input-hint">Nova AI · <span id="input-hint-model-bottom"></span> · 数据仅在本地处理</div>
+      <div class="input-hint">Nova AI · <span id="input-hint-model">请先在"模型设置"中添加配置</span> · 数据仅在本地处理</div>
     </div>
   </main>
 </div>
@@ -1206,8 +1150,6 @@ function updateActiveModelDisplay() {
   const hint = cfg ? `${cfg.model}` : '请先在"模型设置"中添加配置';
   document.getElementById('sidebar-model-name').textContent = name;
   document.getElementById('input-hint-model').textContent = hint;
-  const b = document.getElementById('input-hint-model-bottom');
-  if (b) b.textContent = hint;
 }
 
 function showAddForm() {
@@ -1316,15 +1258,23 @@ function cancelForm() {
 function newChat() {
   conversation = [];
   currentChatId = null;
-  document.getElementById('messages-inner').innerHTML = '';
+  const msgs = document.getElementById('messages');
+  msgs.innerHTML = `<div id="welcome-screen" class="welcome">
+    <div class="welcome-icon"></div>
+    <h1>你好，我是 Nova</h1>
+    <p>基于 AI 驱动的智能助手<br>有什么我可以帮你的？</p>
+    <div class="suggestions">
+      <div class="suggestion-chip" onclick="suggest('用中文介绍一下人工智能的历史')">🧠 AI 的历史</div>
+      <div class="suggestion-chip" onclick="suggest('帮我写一首关于秋天的诗')">🍂 写一首诗</div>
+      <div class="suggestion-chip" onclick="suggest('用 Python 写一个排序算法')">💻 写代码</div>
+      <div class="suggestion-chip" onclick="suggest('推荐几部好看的科幻电影')">🎬 电影推荐</div>
+    </div>
+  </div>`;
   document.getElementById('chat-id').textContent = '—';
   document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
-  document.getElementById('chat-area').classList.add('empty-state');
-  document.getElementById('input-area-bottom').style.display = 'none';
-  setTimeout(() => {
-    const ct = document.getElementById('user-input');
-    if (ct) { ct.value = ''; ct.style.height = 'auto'; ct.focus(); }
-  }, 50);
+  document.getElementById('user-input').value = '';
+  document.getElementById('user-input').style.height = 'auto';
+  document.getElementById('user-input').focus();
 }
 
 function suggest(text) {
@@ -1342,10 +1292,8 @@ function autoResize(el) {
 }
 
 function addMessage(role, text) {
-  // Only remove welcome-screen if it's inside messages-inner (not center-block)
-  const inner = document.getElementById('messages-inner');
-  const welcomeInInner = inner.querySelector('#welcome-screen');
-  if (welcomeInInner) welcomeInInner.remove();
+  const welcome = document.getElementById('welcome-screen');
+  if (welcome) welcome.remove();
   const messages = document.getElementById('messages');
   const row = document.createElement('div');
   row.className = `message-row ${role}`;
@@ -1360,14 +1308,13 @@ function addMessage(role, text) {
 }
 
 function addTyping() {
-  const inner = document.getElementById('messages-inner');
-  const welcomeInInner = inner.querySelector('#welcome-screen');
-  if (welcomeInInner) welcomeInInner.remove();
+  const welcome = document.getElementById('welcome-screen');
+  if (welcome) welcome.remove();
   const messages = document.getElementById('messages');
   const row = document.createElement('div');
   row.className = 'message-row ai'; row.id = 'typing-row';
   row.innerHTML = `<div class="ai-avatar"></div><div class="bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
-  inner.appendChild(row);
+  messages.appendChild(row);
   messages.scrollTop = messages.scrollHeight;
 }
 
@@ -1438,11 +1385,7 @@ function loadChat(id) {
   if (!chat) return;
   currentChatId = id; conversation = chat.messages;
   const messages = document.getElementById('messages');
-  document.getElementById('messages-inner').innerHTML = '';
-  document.getElementById('chat-area').classList.remove('empty-state');
-  document.getElementById('input-area-bottom').style.display = 'flex';
-  const hm2 = document.getElementById('input-hint-model');
-  document.getElementById('input-hint-model-bottom').textContent = hm2 ? hm2.textContent : '';
+  document.getElementById('messages').innerHTML = '';
   conversation.forEach(m => addMessage(m.role === 'user' ? 'user' : 'ai', m.content));
   document.getElementById('chat-id').textContent = id.slice(-6);
   renderHistory();
@@ -1458,32 +1401,18 @@ async function sendMessage() {
     return;
   }
 
-  const isEmpty = document.getElementById('chat-area').classList.contains('empty-state');
-  const input = isEmpty
-    ? document.getElementById('user-input')
-    : document.getElementById('user-input-bottom');
+  const input = document.getElementById('user-input');
   const text = input.value.trim();
   if (!text) return;
 
   input.value = ''; input.style.height = 'auto';
   isLoading = true;
   document.getElementById('send-btn').disabled = true;
-  document.getElementById('send-btn-bottom').disabled = true;
 
   addMessage('user', text);
   conversation.push({ role: 'user', content: text });
   saveChatToHistory(text);
-  // Switch input to bottom position
-  document.getElementById('chat-area').classList.remove('empty-state');
-  document.getElementById('input-area-bottom').style.display = 'flex';
-  // sync hint model label
-  const hm = document.getElementById('input-hint-model');
-  document.getElementById('input-hint-model-bottom').textContent = hm ? hm.textContent : '';
-  // move focus to bottom textarea
-  setTimeout(() => {
-    const bt = document.getElementById('user-input-bottom');
-    if (bt) { bt.value = ''; bt.style.height = 'auto'; bt.focus(); }
-  }, 50);
+
   addTyping();
 
   try {
@@ -1550,8 +1479,7 @@ async function sendMessage() {
 
   isLoading = false;
   document.getElementById('send-btn').disabled = false;
-  document.getElementById('send-btn-bottom').disabled = false;
-  document.getElementById('user-input-bottom').focus();
+  document.getElementById('user-input').focus();
 }
 </script>
 </body>
