@@ -57,14 +57,14 @@
     overflow: hidden;
   }
 
-  /* Grain texture overlay */
+  /* Grain texture overlay — must stay below everything (z-index: -1) */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
     pointer-events: none;
-    z-index: 999;
+    z-index: -1;
     opacity: 0.6;
   }
 
@@ -673,7 +673,7 @@
     position: fixed;
     inset: 0;
     background: rgba(15,14,13,0.5);
-    z-index: 100;
+    z-index: 1000;
     align-items: center;
     justify-content: center;
   }
@@ -1316,18 +1316,7 @@ function cancelForm() {
 function newChat() {
   conversation = [];
   currentChatId = null;
-  document.getElementById('messages-inner').innerHTML = `
-    <div class="welcome" id="welcome-screen">
-      <div class="welcome-icon"></div>
-      <h1>你好，我是 Nova</h1>
-      <p>基于 AI 驱动的智能助手<br>有什么我可以帮你的？</p>
-      <div class="suggestions">
-        <div class="suggestion-chip" onclick="suggest('用中文介绍一下人工智能的历史')">🧠 AI 的历史</div>
-        <div class="suggestion-chip" onclick="suggest('帮我写一首关于秋天的诗')">🍂 写一首诗</div>
-        <div class="suggestion-chip" onclick="suggest('用 Python 写一个排序算法')">💻 写代码</div>
-        <div class="suggestion-chip" onclick="suggest('推荐几部好看的科幻电影')">🎬 电影推荐</div>
-      </div>
-    </div>`;
+  document.getElementById('messages-inner').innerHTML = '';
   document.getElementById('chat-id').textContent = '—';
   document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
   document.getElementById('chat-area').classList.add('empty-state');
@@ -1353,10 +1342,11 @@ function autoResize(el) {
 }
 
 function addMessage(role, text) {
-  const welcome = document.getElementById('welcome-screen');
-  if (welcome) welcome.remove();
-  const messages = document.getElementById('messages');
+  // Only remove welcome-screen if it's inside messages-inner (not center-block)
   const inner = document.getElementById('messages-inner');
+  const welcomeInInner = inner.querySelector('#welcome-screen');
+  if (welcomeInInner) welcomeInInner.remove();
+  const messages = document.getElementById('messages');
   const row = document.createElement('div');
   row.className = `message-row ${role}`;
   if (role === 'ai') {
@@ -1370,10 +1360,10 @@ function addMessage(role, text) {
 }
 
 function addTyping() {
-  const welcome = document.getElementById('welcome-screen');
-  if (welcome) welcome.remove();
-  const messages = document.getElementById('messages');
   const inner = document.getElementById('messages-inner');
+  const welcomeInInner = inner.querySelector('#welcome-screen');
+  if (welcomeInInner) welcomeInInner.remove();
+  const messages = document.getElementById('messages');
   const row = document.createElement('div');
   row.className = 'message-row ai'; row.id = 'typing-row';
   row.innerHTML = `<div class="ai-avatar"></div><div class="bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
