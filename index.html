@@ -1302,7 +1302,7 @@ function addMessage(role, text) {
   } else {
     row.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
   }
-  inner.appendChild(row);
+  messages.appendChild(row);
   requestAnimationFrame(() => { messages.scrollTop = messages.scrollHeight; });
   return row;
 }
