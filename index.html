@@ -643,9 +643,9 @@
   .modal {
     background: var(--paper);
     border-radius: 16px;
-    width: 560px;
+    width: 640px;
     max-width: 95vw;
-    max-height: 85vh;
+    max-height: 88vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -876,6 +876,103 @@
   }
   .active-model-badge:hover { color: var(--gold); }
 
+
+  /* Provider grid */
+  .provider-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    margin-top: 2px;
+  }
+
+  .provider-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 4px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    background: var(--ai-bg);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-soft);
+    text-align: center;
+    user-select: none;
+  }
+  .provider-card:hover { border-color: var(--gold-light); background: var(--gold-pale); transform: translateY(-1px); }
+  .provider-card.active { border-color: var(--gold); background: var(--gold-pale); color: var(--ink); font-weight: 600; }
+  .provider-card-icon { font-size: 18px; line-height: 1; }
+  .provider-card-label { line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
+
+  /* Model cards grid */
+  .model-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .model-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    background: var(--ai-bg);
+    transition: border-color 0.15s, background 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .model-card:hover { border-color: var(--gold-light); background: var(--gold-pale); }
+  .model-card.selected { border-color: var(--gold); background: var(--gold-pale); }
+  .model-card-name { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--ink); }
+  .model-card-desc { font-family: var(--font-mono); font-size: 10px; color: var(--ink-muted); margin-top: 1px; }
+  .model-card-custom {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    background: transparent;
+  }
+  .model-card-custom span { font-family: var(--font-mono); font-size: 10px; color: var(--ink-muted); white-space: nowrap; }
+  .model-card-custom input {
+    flex: 1; border: none; background: transparent;
+    font-family: var(--font-mono); font-size: 12px; color: var(--ink); outline: none;
+  }
+  .model-card-custom input::placeholder { color: var(--ink-muted); }
+
+  /* Key link */
+  .key-link {
+    font-family: var(--font-mono); font-size: 11px; color: var(--gold);
+    text-decoration: none; margin-top: 4px;
+    display: inline-flex; align-items: center; gap: 3px;
+    transition: opacity 0.15s;
+  }
+  .key-link:hover { opacity: 0.75; }
+
+  .provider-card-icon { font-size: 14px; flex-shrink: 0; }
+
+  /* Model desc badge */
+  .model-desc-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--gold);
+    background: var(--gold-pale);
+    border: 1px solid var(--gold-light);
+    border-radius: 999px;
+    padding: 2px 8px;
+    margin-top: 5px;
+    min-height: 18px;
+    transition: opacity 0.2s;
+  }
+  .model-desc-badge:empty { display: none; }
+
+  .model-select-wrap { position: relative; }
+
   @media (max-width: 640px) {
     .layout { grid-template-columns: 1fr; }
     .sidebar { display: none; }
@@ -989,33 +1086,40 @@
       <!-- Add / Edit form -->
       <div class="form-section" id="config-form" style="display:none; margin-top:16px;">
         <div class="section-label" id="form-title">新建配置</div>
-        <div class="form-row">
-          <label>配置名称</label>
-          <input class="form-input" id="f-name" placeholder="例：Claude Sonnet、GPT-4o、DeepSeek…" />
-        </div>
+
+        <!-- Provider grid -->
         <div class="form-row">
           <label>API 服务商</label>
-          <select class="form-input" id="f-provider" onchange="onProviderChange()">
-            <option value="anthropic">Anthropic（Claude）</option>
-            <option value="openai">OpenAI（GPT / o系列）</option>
-            <option value="deepseek">DeepSeek</option>
-            <option value="qwen">阿里通义千问（Qwen）</option>
-            <option value="custom">自定义 Endpoint</option>
-          </select>
+          <div class="provider-grid" id="provider-grid"></div>
         </div>
+
         <div class="form-row">
-          <label>模型名称</label>
-          <input class="form-input" id="f-model" placeholder="例：claude-sonnet-4-20250514" />
+          <label>配置名称</label>
+          <input class="form-input" id="f-name" placeholder="例：My Claude、GPT-4o Pro…" />
+        </div>
+
+        <div class="form-row">
+          <label>模型选择</label>
+          <div class="model-cards" id="model-cards"></div>
           <div class="form-hint" id="f-model-hint"></div>
         </div>
+
         <div class="form-row">
           <label>API Key</label>
           <input class="form-input" id="f-key" type="password" placeholder="sk-…" autocomplete="off"/>
+          <a class="key-link" id="f-key-link" href="#" target="_blank" rel="noopener">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            获取 API Key
+          </a>
         </div>
+
         <div class="form-row" id="f-endpoint-row" style="display:none">
           <label>API Endpoint（Base URL）</label>
           <input class="form-input" id="f-endpoint" placeholder="https://api.example.com/v1" />
         </div>
+
+        <input type="hidden" id="f-provider" value="anthropic" />
+
         <div class="form-actions">
           <button class="btn-primary" onclick="saveConfig()">保存配置</button>
           <button class="btn-secondary" onclick="cancelForm()">取消</button>
@@ -1061,29 +1165,113 @@ let editingConfigId = null;
 // Provider presets
 const PROVIDERS = {
   anthropic: {
+    label: 'Anthropic', icon: '🤖', keyPlaceholder: 'sk-ant-…',
     endpoint: 'https://api.anthropic.com/v1/messages',
-    models: ['claude-sonnet-4-20250514', 'claude-opus-4-20250514', 'claude-haiku-4-5-20251001'],
-    hint: '推荐：claude-sonnet-4-20250514'
+    keyUrl: 'https://console.anthropic.com/settings/keys',
+    models: [
+      { id: 'claude-sonnet-4-20250514',  label: 'Claude Sonnet 4',   desc: '⚡ 旗舰均衡 · 推荐首选' },
+      { id: 'claude-opus-4-20250514',    label: 'Claude Opus 4',     desc: '🧠 最强推理 · 较慢' },
+      { id: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5',  desc: '🚀 极速 · 轻量任务' },
+    ],
+    hint: 'console.anthropic.com'
   },
   openai: {
+    label: 'OpenAI', icon: '✨', keyPlaceholder: 'sk-…',
     endpoint: 'https://api.openai.com/v1/chat/completions',
-    models: ['gpt-4o', 'gpt-4o-mini', 'o3', 'o4-mini'],
-    hint: '推荐：gpt-4o'
+    keyUrl: 'https://platform.openai.com/api-keys',
+    models: [
+      { id: 'gpt-4o',      label: 'GPT-4o',      desc: '⚡ 多模态旗舰' },
+      { id: 'gpt-4o-mini', label: 'GPT-4o mini', desc: '🚀 快速 · 经济' },
+      { id: 'o3',          label: 'o3',           desc: '🧠 深度推理' },
+      { id: 'o4-mini',     label: 'o4-mini',      desc: '⚡ 推理 · 快速' },
+    ],
+    hint: 'platform.openai.com'
   },
   deepseek: {
+    label: 'DeepSeek', icon: '🔍', keyPlaceholder: 'sk-…',
     endpoint: 'https://api.deepseek.com/v1/chat/completions',
-    models: ['deepseek-chat', 'deepseek-reasoner'],
-    hint: '推荐：deepseek-chat'
+    keyUrl: 'https://platform.deepseek.com/api_keys',
+    models: [
+      { id: 'deepseek-chat',     label: 'DeepSeek V3', desc: '⚡ 综合旗舰 · 超高性价比' },
+      { id: 'deepseek-reasoner', label: 'DeepSeek R1', desc: '🧠 推理增强 · 媲美 o1' },
+    ],
+    hint: 'platform.deepseek.com'
   },
   qwen: {
+    label: '通义千问', icon: '🌐', keyPlaceholder: 'sk-…',
     endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
-    models: ['qwen-max', 'qwen-plus', 'qwen-turbo'],
-    hint: '推荐：qwen-max'
+    keyUrl: 'https://dashscope.aliyuncs.com/api-key',
+    models: [
+      { id: 'qwen-max',   label: 'Qwen Max',   desc: '🧠 旗舰 · 复杂任务' },
+      { id: 'qwen-plus',  label: 'Qwen Plus',  desc: '⚡ 均衡 · 推荐' },
+      { id: 'qwen-turbo', label: 'Qwen Turbo', desc: '🚀 极速 · 轻量' },
+      { id: 'qwen-long',  label: 'Qwen Long',  desc: '📄 超长上下文' },
+    ],
+    hint: 'dashscope.aliyuncs.com'
+  },
+  gemini: {
+    label: 'Gemini', icon: '💎', keyPlaceholder: 'AIza…',
+    endpoint: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+    keyUrl: 'https://aistudio.google.com/app/apikey',
+    models: [
+      { id: 'gemini-2.0-flash',       label: 'Gemini 2.0 Flash',      desc: '⚡ 旗舰极速 · 推荐' },
+      { id: 'gemini-2.5-pro-preview', label: 'Gemini 2.5 Pro',        desc: '🧠 最强推理' },
+      { id: 'gemini-2.0-flash-lite',  label: 'Gemini 2.0 Lite',       desc: '🚀 轻量 · 最经济' },
+    ],
+    hint: 'aistudio.google.com（免费）'
+  },
+  moonshot: {
+    label: '月之暗面', icon: '🌙', keyPlaceholder: 'sk-…',
+    endpoint: 'https://api.moonshot.cn/v1/chat/completions',
+    keyUrl: 'https://platform.moonshot.cn/console/api-keys',
+    models: [
+      { id: 'moonshot-v1-8k',   label: 'Moonshot 8k',   desc: '🚀 快速 · 8k' },
+      { id: 'moonshot-v1-32k',  label: 'Moonshot 32k',  desc: '⚡ 均衡 · 32k' },
+      { id: 'moonshot-v1-128k', label: 'Moonshot 128k', desc: '📄 超长 · 128k' },
+    ],
+    hint: 'platform.moonshot.cn'
+  },
+  doubao: {
+    label: '豆包', icon: '🫘', keyPlaceholder: 'your-api-key',
+    endpoint: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
+    keyUrl: 'https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey',
+    models: [
+      { id: 'doubao-pro-32k',  label: 'Doubao Pro 32k',  desc: '⚡ 旗舰 · 推荐' },
+      { id: 'doubao-lite-32k', label: 'Doubao Lite 32k', desc: '🚀 轻量 · 长文' },
+      { id: 'doubao-pro-4k',   label: 'Doubao Pro 4k',   desc: '⚡ 旗舰 · 4k' },
+      { id: 'doubao-lite-4k',  label: 'Doubao Lite 4k',  desc: '🚀 轻量 · 经济' },
+    ],
+    hint: 'console.volcengine.com/ark'
+  },
+  groq: {
+    label: 'Groq', icon: '⚡', keyPlaceholder: 'gsk_…',
+    endpoint: 'https://api.groq.com/openai/v1/chat/completions',
+    keyUrl: 'https://console.groq.com/keys',
+    models: [
+      { id: 'llama-3.3-70b-versatile',       label: 'Llama 3.3 70B',       desc: '⚡ 综合 · 超快速' },
+      { id: 'llama-3.1-8b-instant',          label: 'Llama 3.1 8B',        desc: '🚀 极速 · 轻量' },
+      { id: 'deepseek-r1-distill-llama-70b', label: 'DeepSeek R1 Distill', desc: '🧠 推理 · 快速' },
+      { id: 'gemma2-9b-it',                  label: 'Gemma2 9B',           desc: '🚀 Google 轻量' },
+    ],
+    hint: 'console.groq.com（免费！）'
+  },
+  mistral: {
+    label: 'Mistral', icon: '🌀', keyPlaceholder: 'your-api-key',
+    endpoint: 'https://api.mistral.ai/v1/chat/completions',
+    keyUrl: 'https://console.mistral.ai/api-keys/',
+    models: [
+      { id: 'mistral-large-latest', label: 'Mistral Large', desc: '🧠 旗舰 · 推理强' },
+      { id: 'mistral-small-latest', label: 'Mistral Small', desc: '⚡ 均衡 · 经济' },
+      { id: 'open-mistral-nemo',    label: 'Mistral Nemo',  desc: '🚀 轻量 · 快速' },
+      { id: 'codestral-latest',     label: 'Codestral',     desc: '💻 代码专精' },
+    ],
+    hint: 'console.mistral.ai'
   },
   custom: {
-    endpoint: '',
+    label: '自定义', icon: '🔧', keyPlaceholder: 'your-api-key',
+    endpoint: '', keyUrl: null,
     models: [],
-    hint: '请填写完整的模型 ID'
+    hint: '填写自定义 Base URL 和模型 ID'
   }
 };
 
@@ -1134,7 +1322,7 @@ function renderConfigList() {
 }
 
 function providerLabel(p) {
-  return { anthropic:'Anthropic', openai:'OpenAI', deepseek:'DeepSeek', qwen:'通义千问', custom:'自定义' }[p] || p;
+  return PROVIDERS[p]?.label || p;
 }
 
 function selectConfig(id) {
@@ -1154,12 +1342,13 @@ function updateActiveModelDisplay() {
 
 function showAddForm() {
   editingConfigId = null;
+  _selectedModelId = '';
   document.getElementById('form-title').textContent = '新建配置';
   document.getElementById('f-name').value = '';
   document.getElementById('f-provider').value = 'anthropic';
-  document.getElementById('f-model').value = '';
   document.getElementById('f-key').value = '';
   document.getElementById('f-endpoint').value = '';
+  renderProviderGrid('anthropic');
   onProviderChange();
   document.getElementById('config-form').style.display = 'block';
   document.getElementById('f-name').focus();
@@ -1169,13 +1358,14 @@ function editConfig(id) {
   const c = configs.find(x => x.id === id);
   if (!c) return;
   editingConfigId = id;
+  _selectedModelId = c.model;
   document.getElementById('form-title').textContent = '编辑配置';
   document.getElementById('f-name').value = c.name;
   document.getElementById('f-provider').value = c.provider;
-  document.getElementById('f-model').value = c.model;
-  document.getElementById('f-key').value = '';  // don't pre-fill key for security
+  document.getElementById('f-key').value = '';
   document.getElementById('f-endpoint').value = c.endpoint || '';
-  onProviderChange();
+  renderProviderGrid(c.provider);
+  onProviderChange(true); // preserve model
   document.getElementById('config-form').style.display = 'block';
   document.getElementById('f-name').focus();
 }
@@ -1203,24 +1393,108 @@ function doDeleteConfig(id) {
   renderConfigList();
 }
 
-function onProviderChange() {
+function renderProviderGrid(selectedProvider) {
+  const grid = document.getElementById('provider-grid');
+  grid.innerHTML = Object.entries(PROVIDERS).map(([key, p]) => `
+    <div class="provider-card ${key === selectedProvider ? 'active' : ''}" onclick="selectProvider('${key}')">
+      <span class="provider-card-icon">${p.icon}</span>
+      <span class="provider-card-label">${p.label}</span>
+    </div>
+  `).join('');
+}
+
+function selectProvider(p) {
+  document.getElementById('f-provider').value = p;
+  renderProviderGrid(p);
+  onProviderChange(false);
+}
+
+// 当前选中的模型 ID（由卡片点击或手动输入维护）
+let _selectedModelId = '';
+
+function onProviderChange(preserveModel) {
   const p = document.getElementById('f-provider').value;
   const preset = PROVIDERS[p];
-  document.getElementById('f-model-hint').textContent = preset.hint;
+  // Endpoint
   document.getElementById('f-endpoint-row').style.display = p === 'custom' ? 'block' : 'none';
-  // Suggest first model if field is empty
-  if (!document.getElementById('f-model').value && preset.models.length) {
-    document.getElementById('f-model').value = preset.models[0];
+  if (p !== 'custom') document.getElementById('f-endpoint').value = preset.endpoint;
+  // Key
+  document.getElementById('f-key').placeholder = preset.keyPlaceholder || 'your-api-key';
+  const keyLink = document.getElementById('f-key-link');
+  if (preset.keyUrl) {
+    keyLink.href = preset.keyUrl;
+    keyLink.style.display = 'inline-flex';
+    keyLink.querySelector('span') && (keyLink.querySelector('span').textContent = '获取 API Key · ' + preset.hint);
+  } else {
+    keyLink.style.display = 'none';
   }
-  if (p !== 'custom') {
-    document.getElementById('f-endpoint').value = preset.endpoint;
-  }
+  // Model cards — 切换服务商时重置，编辑时保留
+  if (!preserveModel) _selectedModelId = '';
+  renderModelCards(p);
 }
+
+function renderModelCards(p) {
+  const preset = PROVIDERS[p];
+  const container = document.getElementById('model-cards');
+  // Custom / no models: just show text input
+  if (p === 'custom' || !preset.models.length) {
+    container.innerHTML = `
+      <div class="model-card-custom" style="grid-column:1/-1">
+        <span>模型 ID：</span>
+        <input id="f-model-manual" placeholder="输入完整模型 ID，如 gpt-4o" oninput="onModelManualInput(this.value)" value="${escapeHtml(_selectedModelId)}" />
+      </div>`;
+    return;
+  }
+  // If no selection yet, auto-select first model
+  if (!_selectedModelId || !preset.models.find(m => m.id === _selectedModelId)) {
+    _selectedModelId = preset.models[0].id;
+  }
+  const cards = preset.models.map(m => `
+    <div class="model-card ${m.id === _selectedModelId ? 'selected' : ''}" onclick="selectModelCard('${m.id}')">
+      <div class="model-card-name">${m.label}</div>
+      <div class="model-card-desc">${m.desc}</div>
+    </div>
+  `).join('');
+  // manual override input — value empty if a preset is selected
+  const manualVal = preset.models.find(m => m.id === _selectedModelId) ? '' : _selectedModelId;
+  container.innerHTML = cards + `
+    <div class="model-card-custom">
+      <span>自定义：</span>
+      <input id="f-model-manual" placeholder="或输入自定义模型 ID" oninput="onModelManualInput(this.value)" value="${escapeHtml(manualVal)}" />
+    </div>`;
+  document.getElementById('f-model-hint').textContent = '';
+}
+
+function selectModelCard(id) {
+  _selectedModelId = id;
+  const p = document.getElementById('f-provider').value;
+  document.querySelectorAll('#model-cards .model-card').forEach(el => el.classList.remove('selected'));
+  const preset = PROVIDERS[p];
+  const idx = (preset.models || []).findIndex(m => m.id === id);
+  const cards = document.querySelectorAll('#model-cards .model-card');
+  if (cards[idx]) cards[idx].classList.add('selected');
+  // Clear manual input
+  const manual = document.getElementById('f-model-manual');
+  if (manual) manual.value = '';
+  document.getElementById('f-model-hint').textContent = '';
+}
+
+function onModelManualInput(val) {
+  _selectedModelId = val.trim();
+  // Deselect all cards
+  document.querySelectorAll('#model-cards .model-card').forEach(el => el.classList.remove('selected'));
+}
+
+function getSelectedModel() {
+  return _selectedModelId;
+}
+
+function onModelSelectChange() {} // legacy stub
 
 function saveConfig() {
   const name = document.getElementById('f-name').value.trim();
   const provider = document.getElementById('f-provider').value;
-  const model = document.getElementById('f-model').value.trim();
+  const model = getSelectedModel();
   const key = document.getElementById('f-key').value.trim();
   const endpoint = document.getElementById('f-endpoint').value.trim() || PROVIDERS[provider]?.endpoint || '';
 
