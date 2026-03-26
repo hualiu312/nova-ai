@@ -1444,8 +1444,11 @@ async function sendMessage() {
       reply = data.content?.[0]?.text || '（无回复）';
 
     } else {
-      // OpenAI-compatible API (OpenAI, DeepSeek, Qwen, custom)
-      const res = await fetch(cfg.endpoint, {
+      // OpenAI-compatible API (OpenAI, DeepSeek, Qwen, custom) — 通过 CORS 代理
+      const PROXY = 'https://corsproxy.io/?url=';
+      const targetUrl = cfg.endpoint;
+      const fetchUrl = PROXY + encodeURIComponent(targetUrl);
+      const res = await fetch(fetchUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1460,7 +1463,10 @@ async function sendMessage() {
           ]
         })
       });
-      const data = await res.json();
+      const rawText = await res.text();
+      let data;
+      try { data = JSON.parse(rawText); }
+      catch(e) { throw new Error('API 返回格式错误（可能是代理或网络问题）：' + rawText.slice(0, 120)); }
       if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
       reply = data.choices?.[0]?.message?.content || '（无回复）';
     }
