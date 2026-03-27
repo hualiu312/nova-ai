@@ -3,6 +3,7 @@
 > 一个基于纯前端的 AI 对话界面，支持 10+ 主流 AI 服务商，无需后端，数据仅在本地处理。
 
 ![Nova AI 界面预览](https://hualiu312.github.io/nova-ai/preview.png)
+![Nova AI 界面预览](https://hualiu312.github.io/nova-ai/preview2.png)
 
 ---
 
